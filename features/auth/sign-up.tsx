@@ -33,17 +33,13 @@ const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
     },
   });
 
-  // Récupérer l'état de soumission du formulaire
   const isSubmitting = form.formState.isSubmitting;
 
   const onSubmit = async (data: SignUpSchema): Promise<void> => {
     try {
       const { name, email, password } = data;
-
-      // Toast de loading - se déclenche automatiquement
       const loadingToastId = toast.loading('Inscription en cours...', {
         description: 'Veuillez patienter un moment.',
-        icon: <Loader className='animate-spin' />,
       });
 
       const { data: user, error } = await authClient.signUp.email(
