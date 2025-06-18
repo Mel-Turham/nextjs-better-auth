@@ -20,10 +20,8 @@ import { Button } from '@/components/ui/button';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { ArrowLeftCircle, Check, Loader } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
-  const router = useRouter();
   const form = useForm<SignUpSchema>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -47,22 +45,18 @@ const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
           name,
           email,
           password,
-          callbackURL: '/dashboard',
+          callbackURL: '/sign-in',
         },
         {
           onSuccess: () => {
-            // Fermer le toast de loading et afficher le succès
             toast.dismiss(loadingToastId);
             toast.success('Inscription réussie', {
               description: 'Vous avez été inscrit avec succès.',
               duration: 3000,
               icon: <Check className='size-6' />,
             });
-
-            router.push('/dashboard');
           },
           onError: (ctx) => {
-            // Fermer le toast de loading et afficher l'erreur
             toast.dismiss(loadingToastId);
             toast.error("Échec de l'inscription", {
               description: ctx.error.message,
@@ -80,6 +74,44 @@ const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
         description: "Une erreur est survenue lors de l'inscription.",
         duration: 4000,
         icon: <ArrowLeftCircle className='size-6' />,
+      });
+    }
+  };
+
+  const signUpWithGoogle = async (): Promise<void> => {
+    try {
+      const loadingToastId = toast.loading('Inscription en cours...', {
+        description: 'Veuillez patienter un moment.',
+      });
+      const { error } = await authClient.signIn.social({
+        provider: 'google',
+      });
+      console.log({ error });
+      toast.dismiss(loadingToastId);
+    } catch (error) {
+      console.error(error);
+      toast.error("Échec de l'inscription", {
+        description: "Une erreur est survenue lors de l'inscription.",
+        duration: 4000,
+      });
+    }
+  };
+
+  const signUpWithGitHub = async (): Promise<void> => {
+    try {
+      const loadingToastId = toast.loading('Inscription en cours...', {
+        description: 'Veuillez patienter un moment.',
+      });
+      const { error } = await authClient.signIn.social({
+        provider: 'github',
+      });
+      console.log({ error });
+      toast.dismiss(loadingToastId);
+    } catch (error) {
+      console.error(error);
+      toast.error("Échec de l'inscription", {
+        description: "Une erreur est survenue lors de l'inscription.",
+        duration: 4000,
       });
     }
   };
@@ -187,6 +219,7 @@ const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                     type='button'
                     className='w-full'
                     disabled={isSubmitting}
+                    onClick={signUpWithGitHub}
                   >
                     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
                       <path
@@ -194,13 +227,14 @@ const SignUpForm = ({ className, ...props }: React.ComponentProps<'div'>) => {
                         fill='currentColor'
                       />
                     </svg>
-                    <span className='sr-only'>Se connecter avec Apple</span>
+                    <span className='sr-only'>Se connecter avec GitHub</span>
                   </Button>
                   <Button
                     variant='outline'
                     type='button'
                     className='w-full'
                     disabled={isSubmitting}
+                    onClick={signUpWithGoogle}
                   >
                     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'>
                       <path

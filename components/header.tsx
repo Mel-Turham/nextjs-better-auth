@@ -1,3 +1,5 @@
+'use client';
+
 import { BookOpenIcon, InfoIcon, LifeBuoyIcon } from 'lucide-react';
 
 import Logo from '@/components/logo';
@@ -18,6 +20,7 @@ import {
 } from '@/components/ui/popover';
 import { ModeToggle } from './toggle-theme';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -68,6 +71,8 @@ const navigationLinks = [
 ];
 
 export default function Header() {
+  const { data: session } = authClient.useSession();
+
   return (
     <header className='border-b px-4 fixed top-0 left-0 right-0 z-50 bg-white/65 backdrop-blur-md dark:bg-black/50 shadow md:px-6'>
       <div className='flex h-16 items-center justify-between gap-4'>
@@ -258,12 +263,18 @@ export default function Header() {
         </div>
         {/* Right side */}
         <div className='flex items-center gap-2'>
-          <Button asChild variant='ghost' size='sm' className='text-sm'>
-            <Link href='/sign-up'>Sign Up</Link>
-          </Button>
-          <Button asChild size='sm' className='text-sm'>
-            <a href='#'>Get Started</a>
-          </Button>
+          {session ? (
+            <span>{session?.user?.name}</span>
+          ) : (
+            <>
+              <Button asChild size='sm' className='text-sm'>
+                <Link href='/sign-up'>Sign Up</Link>
+              </Button>
+              <Button variant={'outline'} asChild size='sm' className='text-sm'>
+                <Link href='/sign-in'>Sign In</Link>
+              </Button>
+            </>
+          )}
           <ModeToggle />
         </div>
       </div>
